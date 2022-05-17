@@ -1,9 +1,17 @@
 const express = require("express");
+const morgan = require("morgan");
+
+morgan.token("body", (req) => {
+  return JSON.stringify(req.body);
+});
 
 const app = express();
 const PORT = 3001;
 
 app.use(express.json());
+app.use(
+  morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 let persons = [
   {
@@ -50,7 +58,7 @@ app.post("/api/persons", (req, res) => {
   if (!body.name || !body.number) {
     return res.status(400).json({ error: "all fields are required" });
   }
-  //   console.log(body, person);
+
   if (person) {
     return res.status(409).json({ error: "name must be unique" });
   }
