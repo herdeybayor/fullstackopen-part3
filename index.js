@@ -1,14 +1,16 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
 morgan.token("body", (req) => {
   return JSON.stringify(req.body);
 });
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
+app.use(cors());
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
@@ -68,7 +70,7 @@ app.post("/api/persons", (req, res) => {
     number: body.number,
   };
   persons = [...persons, newPerson];
-  res.status(200).json(persons);
+  res.status(200).json(newPerson);
 });
 
 app.get("/api/persons/:id", (req, res) => {
@@ -78,6 +80,24 @@ app.get("/api/persons/:id", (req, res) => {
     res.status(200).json(person);
   } else {
     res.status(404).json({ error: "resource not found" });
+  }
+});
+
+app.put("/api/persons/:id", (req, res) => {
+  const id = Number(req.params.id);
+  const body = req.body;
+  const person = persons.find((person) => person.id === id);
+
+  if (!body.name || !body.number) {
+    return res.status(400).json({ error: "all fields are required" });
+  }
+
+  if (person) {
+    const changedPerson = { id: id, name: body.name, number: body.number };
+    persons = [...persons.filter((person) => person.id !== id), changedPerson];
+    return res.status(200).json(changedPerson);
+  } else {
+    return res.status(404).json({ error: "resource not found" });
   }
 });
 
