@@ -11,6 +11,7 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 app.use(cors());
+app.use(express.static("build"));
 app.use(
   morgan(":method :url :status :res[content-length] - :response-time ms :body")
 );
@@ -37,10 +38,6 @@ let persons = [
     number: "39-23-6423122",
   },
 ];
-
-app.get("/", (req, res) => {
-  res.status(200).json({ message: "Welcome to Phonebook Backend" });
-});
 
 app.get("/info", (req, res) => {
   const info = `Phonebook has info for ${persons.length} people\n${Date()}`;
